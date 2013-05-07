@@ -1,7 +1,9 @@
 package riskEngine
 
 import (
+	//"log"
 	"math/rand"
+	"sort"
 	"time"
 )
 
@@ -25,6 +27,14 @@ type BattleResult struct {
 type singleBattleResult struct {
 	AttackingArmiesLeft int
 	AttackerWon         bool
+}
+
+type diceResultSorter struct {
+	sort.Interface
+}
+
+func (sorter diceResultSorter) Less(i, j int) bool {
+	return sorter.Interface.Less(j, i)
 }
 
 //public methods
@@ -59,10 +69,39 @@ func determineSingleBattle(request *BattleRequest) (result *singleBattleResult) 
 	var (
 		remainingAttackers = request.AttackingArmies
 		remainingDefenders = request.DefendingArmies
+		numberOfDice       int
 	)
 
 	for remainingAttackers > 1 && remainingDefenders > 0 {
-		//var result = diceRoller.Roll()
+		if remainingAttackers > 4 {
+			numberOfDice = 3
+		} else {
+			numberOfDice = remainingAttackers - 1
+		}
+
+		attackingDice := request.diceRoller(numberOfDice)
+
+		if remainingDefenders >= 2 {
+			numberOfDice = 2
+		} else {
+			numberOfDice = 1
+		}
+
+		defendingDice := request.diceRoller(numberOfDice)
+
+		if attackingDice[0] > defendingDice[0] {
+			remainingDefenders--
+		} else {
+			remainingAttackers--
+		}
+
+		if len(attackingDice) > 1 && len(defendingDice) > 1 {
+			if attackingDice[1] > defendingDice[1] {
+				remainingDefenders--
+			} else {
+				remainingAttackers--
+			}
+		}
 	}
 
 	result = new(singleBattleResult)
@@ -80,7 +119,8 @@ func rollTheDice(numberOfDiceToRoll int) (results []int) {
 	results = make([]int, numberOfDiceToRoll)
 	rand.Seed(time.Now().UnixNano())
 	for index, _ := range results {
-		results[index] = rand.Intn(5) + 1
+		results[index] = rand.Intn(6) + 1
 	}
+	sort.Sort(diceResultSorter{sort.IntSlice(results)})
 	return
 }
