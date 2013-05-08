@@ -3,6 +3,7 @@ package riskEngine
 import (
 	//"log"
 	"math/rand"
+	"runtime"
 	"sort"
 	"time"
 )
@@ -38,6 +39,10 @@ func (sorter diceResultSorter) Less(i, j int) bool {
 }
 
 //public methods
+func init() {
+	runtime.GOMAXPROCS(runtime.NumCPU())
+}
+
 func (request *BattleRequest) CalculateBattleResults() (result *BattleResult) {
 
 	battles := make([]*singleBattleResult, request.NumberOfBattles, request.NumberOfBattles)
@@ -60,8 +65,20 @@ func (request *BattleRequest) CalculateBattleResults() (result *BattleResult) {
 
 func (request *BattleRequest) calculateBattleResult(battles []*singleBattleResult) (result *BattleResult) {
 	result = new(BattleResult)
-	result.AverageNumberOfAttackersLeft = 2
-	result.PercentageThatWereWins = 45.0
+	sum := 0
+	numberOfBattles := 0
+	numberOfWins := 0
+
+	for _, battleResult := range battles {
+		sum = sum + battleResult.AttackingArmiesLeft
+		numberOfBattles++
+		if battleResult.AttackerWon {
+			numberOfWins++
+		}
+	}
+
+	result.AverageNumberOfAttackersLeft = int(sum / numberOfBattles)
+	result.PercentageThatWereWins = (float32(numberOfWins) / float32(numberOfBattles)) * 100
 	return
 }
 

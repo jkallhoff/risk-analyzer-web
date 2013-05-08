@@ -1,7 +1,7 @@
 package riskEngine
 
 import (
-	//"log"
+	"log"
 	"testing"
 )
 
@@ -64,31 +64,91 @@ func TestDefaultRollTheDiceSortsResultOrder(t *testing.T) {
 	}
 }
 
-//test determineSingleBattle(*BattleRequest)
-func TestSingleBattleResultsWhereAttackerWins(t *testing.T) {
+//test calculateBattleResult
+func TestSingleCalculatedBattleResult(t *testing.T) {
 	//Arrange
-	requestOne := FetchBattleRequest(4, 2, 1)
-	requestTwo := FetchBattleRequest(4, 8, 1)
-	requestThree := FetchBattleRequest(2, 8, 1)
+	request := new(BattleRequest)
+	singleBattleResults := []*singleBattleResult{&singleBattleResult{AttackingArmiesLeft: 5, AttackerWon: true}}
 
-	//Act,Assert
-	RunSingleBattleTest(t, requestOne, 6, 5, 4)
-	RunSingleBattleTest(t, requestTwo, 6, 5, 4)
-	RunSingleBattleTest(t, requestThree, 6, 5, 2)
+	//Assert,Act
+	if battleResult := request.calculateBattleResult(singleBattleResults); battleResult.AverageNumberOfAttackersLeft != 5 {
+		t.Errorf("Excepted average of 5, instead got %v", battleResult.AverageNumberOfAttackersLeft)
+	}
 
 }
 
-func TestSingleBattleResultsWhereDefenderTies(t *testing.T) {
+func TestPercentageOfWinsFor100(t *testing.T) {
 	//Arrange
-	requestOne := FetchBattleRequest(4, 2, 1)
-	requestTwo := FetchBattleRequest(3, 8, 1)
-	requestThree := FetchBattleRequest(2, 8, 1)
+	request := new(BattleRequest)
+	singleBattleResults := []*singleBattleResult{&singleBattleResult{AttackingArmiesLeft: 5, AttackerWon: true}}
+
+	//Assert,Act
+	if battleResult := request.calculateBattleResult(singleBattleResults); battleResult.PercentageThatWereWins != 100.0 {
+		t.Errorf("Excepted percentage of wins of 100.0, instead got %v", battleResult.PercentageThatWereWins)
+	}
+}
+
+func TestMultipleCalculatedBattleResult(t *testing.T) {
+	//Arrange
+	request := new(BattleRequest)
+	singleBattleResults := []*singleBattleResult{
+		&singleBattleResult{AttackingArmiesLeft: 5, AttackerWon: true},
+		&singleBattleResult{AttackingArmiesLeft: 5, AttackerWon: true}}
+
+	//Assert,Act
+	if battleResult := request.calculateBattleResult(singleBattleResults); battleResult.AverageNumberOfAttackersLeft != 5 {
+		t.Errorf("Excepted average of 5, instead got %v", battleResult.AverageNumberOfAttackersLeft)
+	}
+
+}
+
+func TestMultipleCalculatedBattleResultWithVaryingAttackers(t *testing.T) {
+	//Arrange
+	request := new(BattleRequest)
+	singleBattleResults := []*singleBattleResult{
+		&singleBattleResult{AttackingArmiesLeft: 5, AttackerWon: true},
+		&singleBattleResult{AttackingArmiesLeft: 12, AttackerWon: true}}
+
+	//Assert,Act
+	if battleResult := request.calculateBattleResult(singleBattleResults); battleResult.AverageNumberOfAttackersLeft != 8 {
+		t.Errorf("Excepted average of 8, instead got %v", battleResult.AverageNumberOfAttackersLeft)
+	}
+}
+
+func TestMultipleCalculatedBattleResultWithSomeLosers(t *testing.T) {
+	//Arrange
+	request := new(BattleRequest)
+	singleBattleResults := []*singleBattleResult{
+		&singleBattleResult{AttackingArmiesLeft: 5, AttackerWon: true},
+		&singleBattleResult{AttackingArmiesLeft: 1, AttackerWon: false}}
+
+	//Assert,Act
+	if battleResult := request.calculateBattleResult(singleBattleResults); battleResult.PercentageThatWereWins != 50.0 {
+		t.Errorf("Excepted average of 50.0, instead got %v", battleResult.PercentageThatWereWins)
+	}
+}
+
+//test determineSingleBattle(*BattleRequest)
+func TestRunSeriesOfBattlesAndVerifyResults(t *testing.T) {
+	//Arrange
+	request := FetchBattleRequest(4, 2, 1)
 
 	//Act,Assert
-	RunSingleBattleTest(t, requestOne, 5, 5, 1)
-	RunSingleBattleTest(t, requestTwo, 5, 5, 1)
-	RunSingleBattleTest(t, requestThree, 5, 5, 1)
+	RunSingleBattleTest(t, request, 6, 5, 4) //Attacker should win due to 6's beating 5's
+	RunSingleBattleTest(t, request, 5, 5, 1) //Defender should win due to 5's tying 5's
+	RunSingleBattleTest(t, request, 5, 6, 1) //Defender should win due to 6's beating 5's
+}
 
+//integration tests
+func TestFullIntegration(t *testing.T) {
+	//Arrange
+	request := &BattleRequest{AttackingArmies: 20, DefendingArmies: 12, NumberOfBattles: 10000}
+
+	//Act
+	result := request.CalculateBattleResults()
+
+	//Assert
+	log.Printf("%#v", result)
 }
 
 //Helpers
