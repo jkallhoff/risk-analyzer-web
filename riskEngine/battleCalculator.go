@@ -1,16 +1,18 @@
 package riskEngine
 
 import (
-	//"log"
 	"math/rand"
-	"runtime"
 	"sort"
 	"time"
 )
 
-//types
 type BattleCalculator interface {
 	CalculateBattleResults() *BattleResult
+}
+
+type BattleResult struct {
+	AverageNumberOfAttackersLeft int
+	PercentageThatWereWins       float32
 }
 
 type BattleRequest struct {
@@ -20,31 +22,14 @@ type BattleRequest struct {
 	diceRoller                       func(numberOfDiceToRoll int) []int
 }
 
-type BattleResult struct {
-	AverageNumberOfAttackersLeft int
-	PercentageThatWereWins       float32
-}
-
 type singleBattleResult struct {
 	AttackingArmiesLeft int
 	AttackerWon         bool
 }
 
-type diceResultSorter struct {
-	sort.Interface
-}
-
-func (sorter diceResultSorter) Less(i, j int) bool {
-	return sorter.Interface.Less(j, i)
-}
-
-//public methods
-func init() {
-	runtime.GOMAXPROCS(runtime.NumCPU())
-}
-
 func (request *BattleRequest) CalculateBattleResults() (result *BattleResult) {
 
+	rand.Seed(time.Now().UnixNano())
 	battles := make([]*singleBattleResult, request.NumberOfBattles, request.NumberOfBattles)
 
 	if request.singleBattleResolver == nil {
@@ -60,6 +45,23 @@ func (request *BattleRequest) CalculateBattleResults() (result *BattleResult) {
 	}
 
 	result = request.calculateBattleResult(battles)
+	return
+}
+
+type diceResultSorter struct {
+	sort.Interface
+}
+
+func (sorter diceResultSorter) Less(i, j int) bool {
+	return sorter.Interface.Less(j, i)
+}
+
+func rollTheDice(numberOfDiceToRoll int) (results []int) {
+	results = make([]int, numberOfDiceToRoll)
+	for index, _ := range results {
+		results[index] = rand.Intn(6) + 1
+	}
+	sort.Sort(diceResultSorter{sort.IntSlice(results)})
 	return
 }
 
@@ -129,15 +131,5 @@ func determineSingleBattle(request *BattleRequest) (result *singleBattleResult) 
 	} else {
 		result.AttackerWon = true
 	}
-	return
-}
-
-func rollTheDice(numberOfDiceToRoll int) (results []int) {
-	results = make([]int, numberOfDiceToRoll)
-	rand.Seed(time.Now().UnixNano())
-	for index, _ := range results {
-		results[index] = rand.Intn(6) + 1
-	}
-	sort.Sort(diceResultSorter{sort.IntSlice(results)})
 	return
 }

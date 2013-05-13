@@ -39,7 +39,6 @@ func TestCustomDiceRoller(t *testing.T) {
 	}
 }
 
-//test rollTheDice(int)
 func TestDefaultRollTheDiceLengthOfReturn(t *testing.T) {
 	//Arrange,Act,Assert
 	results := rollTheDice(3)
@@ -142,7 +141,7 @@ func TestRunSeriesOfBattlesAndVerifyResults(t *testing.T) {
 //integration tests
 func TestFullIntegration(t *testing.T) {
 	//Arrange
-	request := &BattleRequest{AttackingArmies: 20, DefendingArmies: 12, NumberOfBattles: 10000}
+	request := &BattleRequest{AttackingArmies: 20, DefendingArmies: 12, NumberOfBattles: 1000}
 
 	//Act
 	result := request.CalculateBattleResults()
