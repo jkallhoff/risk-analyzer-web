@@ -1,3 +1,6 @@
 {
-	"webPort": ":8080"
+	"webPort": ":8080",
+	"mongoUsername":"mongoadmin",
+	"mongoPassword":"mongopassword",
+	"mongoPort": "27017"
 }

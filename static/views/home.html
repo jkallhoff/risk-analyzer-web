@@ -3,7 +3,7 @@
 	<head>
 		<title>Risk Dominator</title>
 		<link href="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/css/bootstrap-combined.min.css" rel="stylesheet" />
-		<link href="../styles/risk.css" rel="stylesheet" />
+		<link href="/static/styles/risk.css" rel="stylesheet" />
 	</head>
 	<body>
 		<div class="container">
@@ -14,30 +14,31 @@
 			</div>
 			<div class="row">
 				<div class="span3">
-				  	<form>
+				  	<form method="post" action="/BattleRequest">
 				  		<fieldset>
 					  		<label for="attackingArmies">Attackers</label>
-					  		<input type="text" id="attackingArmies" />
+					  		<input type="text" name="attackingArmies" id="attackingArmies" />
 					  		<label for="defendingArmies">Defenders</label>
-					  		<input type="text" id="defendingArmies" />
+					  		<input type="text" name="defendingArmies" id="defendingArmies" />
 					  		<p>
 								<input type="submit" class="btn btn-primary btn-large" value="Roll the Dice!" />
 							</p>
 						</fieldset>
 			  		</form>
 		  		</div>
-		  		<div class="span3 well" style="display:none">
+		  		<div class="span4" style="display:none" id="resultsContainer">
 		  			<div id="loadingAnimation">
-	  					<img src="../images/dice.gif" alt="rolling dice" />
+	  					<img src="/static/images/dice.gif" alt="rolling dice" />
 	  				</div>
-	  				<div id="result">
-	  					<h2>Result: <span id="percentage">100%</span></h2>
+	  				<div id="result" class="well">
+	  					<h2>Result: <span id="percentage"></span></h2>
+	  					<h3>Avg. Attackers Left: <span id="avgLeft"></span></h3>
   					</div>
 	  			</div>
 			</div>
 		</div>
 		<script src="http://code.jquery.com/jquery-1.9.1.min.js"></script>
-		<script src="../scripts/risk.js"></script>
+		<script src="/static/scripts/risk.js"></script>
 		<script src="http://netdna.bootstrapcdn.com/twitter-bootstrap/2.3.1/js/bootstrap.min.js"></script>
 	</body>
 </html>

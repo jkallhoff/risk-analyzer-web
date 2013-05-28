@@ -11,8 +11,10 @@ type BattleCalculator interface {
 }
 
 type BattleResult struct {
-	AverageNumberOfAttackersLeft int
-	PercentageThatWereWins       float32
+	AttackingArmies              int     "AttackingArmies"
+	DefendingArmies              int     "DefendingArmies"
+	AverageNumberOfAttackersLeft int     "AverageNumberOfAttackersLeft"
+	PercentageThatWereWins       float32 "PercentageThatWereWins"
 }
 
 type BattleRequest struct {
@@ -45,6 +47,8 @@ func (request *BattleRequest) CalculateBattleResults() (result *BattleResult) {
 	}
 
 	result = request.calculateBattleResult(battles)
+	result.AttackingArmies = request.AttackingArmies
+	result.DefendingArmies = request.DefendingArmies
 	return
 }
 

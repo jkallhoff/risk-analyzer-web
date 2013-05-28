@@ -63,7 +63,6 @@ func TestDefaultRollTheDiceSortsResultOrder(t *testing.T) {
 	}
 }
 
-//test calculateBattleResult
 func TestSingleCalculatedBattleResult(t *testing.T) {
 	//Arrange
 	request := new(BattleRequest)
@@ -136,18 +135,6 @@ func TestRunSeriesOfBattlesAndVerifyResults(t *testing.T) {
 	RunSingleBattleTest(t, request, 6, 5, 4) //Attacker should win due to 6's beating 5's
 	RunSingleBattleTest(t, request, 5, 5, 1) //Defender should win due to 5's tying 5's
 	RunSingleBattleTest(t, request, 5, 6, 1) //Defender should win due to 6's beating 5's
-}
-
-//integration tests
-func TestFullIntegration(t *testing.T) {
-	//Arrange
-	request := &BattleRequest{AttackingArmies: 20, DefendingArmies: 12, NumberOfBattles: 1000}
-
-	//Act
-	result := request.CalculateBattleResults()
-
-	//Assert
-	log.Printf("%#v", result)
 }
 
 //Helpers
