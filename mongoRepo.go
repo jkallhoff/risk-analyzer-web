@@ -14,8 +14,8 @@ var (
 )
 
 type battleRepository interface {
-	SaveBattleResult(*riskEngine.BattleResult)
-	FetchBattleResult(attackingArmies, defendingArmies int) *riskEngine.BattleResult
+	SaveBattleResult(*riskEngine.BattleResult) error
+	FetchBattleResult(attackingArmies, defendingArmies int) (*riskEngine.BattleResult, error)
 	Close()
 }
 
@@ -26,19 +26,19 @@ func (*mongoRepository) Close() {
 	session.Close()
 }
 
-func (*mongoRepository) SaveBattleResult(result *riskEngine.BattleResult) {
-	err := collection.Insert(result)
-	if err != nil {
-		panic(err)
-	}
+func (*mongoRepository) SaveBattleResult(result *riskEngine.BattleResult) (err error) {
+	err = collection.Insert(result)
+	return
 }
 
-func (*mongoRepository) FetchBattleResult(attackingArmies, defendingArmies int) *riskEngine.BattleResult {
+func (*mongoRepository) FetchBattleResult(attackingArmies, defendingArmies int) (*riskEngine.BattleResult, error) {
 	result := riskEngine.BattleResult{}
-	if err := collection.Find(bson.M{"AttackingArmies": attackingArmies, "DefendingArmies": defendingArmies}).One(&result); err != nil {
-		return nil
+	var err error
+
+	if err = collection.Find(bson.M{"AttackingArmies": attackingArmies, "DefendingArmies": defendingArmies}).One(&result); err != nil {
+		return nil, err
 	}
-	return &result
+	return &result, nil
 }
 
 func init() {
