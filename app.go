@@ -9,10 +9,19 @@ import (
 	"strconv"
 )
 
+type dependencyHandler func(w http.ResponseWriter, r *http.Request, repo battleRepository)
+
+func (d dependencyHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	repo := new(mongoRepository)
+	d(w, r, repo)
+	defer repo.Close()
+	return
+}
+
 func main() {
 	router := mux.NewRouter()
 	router.HandleFunc("/", homeHandler).Methods("GET")
-	router.HandleFunc("/BattleRequest", battleRequestHandler).Methods("POST")
+	router.Handle("/BattleRequest", dependencyHandler(battleRequestHandler)).Methods("POST")
 
 	http.Handle("/", router)
 	http.HandleFunc("/static/", func(w http.ResponseWriter, r *http.Request) {
@@ -22,7 +31,7 @@ func main() {
 	panic(http.ListenAndServe(gofig.Str("webPort"), nil))
 }
 
-func battleRequestHandler(w http.ResponseWriter, r *http.Request) {
+func battleRequestHandler(w http.ResponseWriter, r *http.Request, repo battleRepository) {
 	var result *riskEngine.BattleResult
 	var attackingArmies, defendingArmies int
 	var err error
@@ -35,9 +44,6 @@ func battleRequestHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "Invalid battle request detected", http.StatusInternalServerError)
 		return
 	}
-
-	repo := new(mongoRepository)
-	defer repo.Close()
 
 	if result, err = repo.FetchBattleResult(attackingArmies, defendingArmies); err != nil && err.Error() != "not found" {
 		http.Error(w, "There was an error fetching the existing results", http.StatusInternalServerError)
