@@ -2,8 +2,8 @@ package main
 
 import (
 	"fmt"
-	"github.com/jkallhoff/gofig"
-	"github.com/jkallhoff/risk-analyzer-web/riskEngine"
+	"github.com/JKallhoff/gofig"
+	"github.com/JKallhoff/risk-analyzer-web/riskEngine"
 	"labix.org/v2/mgo"
 	"labix.org/v2/mgo/bson"
 )

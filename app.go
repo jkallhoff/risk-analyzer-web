@@ -2,9 +2,9 @@ package main
 
 import (
 	"encoding/json"
+	"github.com/JKallhoff/gofig"
+	"github.com/JKallhoff/risk-analyzer-web/riskEngine"
 	"github.com/gorilla/mux"
-	"github.com/jkallhoff/gofig"
-	"github.com/jkallhoff/risk-analyzer-web/riskEngine"
 	"net/http"
 	"strconv"
 )
