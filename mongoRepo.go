@@ -9,7 +9,7 @@ import (
 )
 
 var (
-	session    *mgo.Session
+	session    mgo.Session
 	collection *mgo.Collection
 )
 
