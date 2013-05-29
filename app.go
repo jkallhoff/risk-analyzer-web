@@ -9,15 +9,6 @@ import (
 	"strconv"
 )
 
-type dependencyHandler func(w http.ResponseWriter, r *http.Request, repo battleRepository)
-
-func (d dependencyHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
-	repo := new(mongoRepository)
-	d(w, r, repo)
-	defer repo.Close()
-	return
-}
-
 func main() {
 	router := mux.NewRouter()
 	router.HandleFunc("/", homeHandler).Methods("GET")
@@ -29,6 +20,15 @@ func main() {
 	})
 
 	panic(http.ListenAndServe(gofig.Str("webPort"), nil))
+}
+
+type dependencyHandler func(w http.ResponseWriter, r *http.Request, repo battleRepository)
+
+func (d dependencyHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	repo := new(mongoRepository)
+	d(w, r, repo)
+	defer repo.Close()
+	return
 }
 
 func battleRequestHandler(w http.ResponseWriter, r *http.Request, repo battleRepository) {
